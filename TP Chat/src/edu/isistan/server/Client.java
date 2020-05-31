@@ -38,13 +38,27 @@ public class Client implements Runnable {
                     case (Protocol.GENERAL_MSG):
                         String text = dis.readUTF();
                         this.server.sendGeneralMsg(userName, text);
+                        break;
+
+                    case (Protocol.ADD_USER):
+                        this.server.addClient(userName, this);
+                        break;
+
+                    case (Protocol.REMOVE_USER):
+                        this.server.removeUser(userName);
+                        break;
+
+                    case (Protocol.PRIVATE_MSG):
+                        String userTo = dis.readUTF();
+                        text = dis.readUTF();
+                        this.server.sendPrivateMsg(userName, userTo, text);
+                        break;
                 }
-                //TODO implementar el resto del protocolo
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(userName!=null) {
+            if(userName != null) {
                 this.server.removeUser(userName);
             }
         }
@@ -55,7 +69,7 @@ public class Client implements Runnable {
             this.dos.writeByte(Protocol.REMOVE_USER);
             this.dos.writeUTF(userName);
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -64,7 +78,7 @@ public class Client implements Runnable {
             this.dos.writeByte(Protocol.ADD_USER);
             this.dos.writeUTF(userName);
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -74,7 +88,18 @@ public class Client implements Runnable {
             dos.writeUTF(userName);
             dos.writeUTF(text);
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void sendPrivateMsg(String userName, String userTo, String text) {
+        try {
+            dos.writeByte(Protocol.PRIVATE_MSG);
+            dos.writeUTF(userName);
+            dos.writeUTF(userTo);
+            dos.writeUTF(text);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

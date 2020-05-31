@@ -12,7 +12,7 @@ import java.net.Socket;
 public class Client {
     public static void main(String[] args) {
         try {
-            Socket s = new Socket(args[0], 6663);
+            Socket s = new Socket("localhost", 6663);
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
             ChatGUI gui = MainWindows.launchOrGet(new Callback(dos));
             new Thread(()-> {
@@ -38,8 +38,10 @@ public class Client {
                                 break;
 
                             case (Protocol.PRIVATE_MSG):
+                                String userName = dis.readUTF();
                                 String userTo = dis.readUTF();
-                                gui.chatWith(userTo);
+                                String textTo = dis.readUTF();
+                                gui.addNewMsg(userName, textTo);
                                 break;
                         }
                     }
@@ -49,7 +51,7 @@ public class Client {
                 }
             }).start();
             dos.writeByte(Protocol.HANDSHAKE);
-            dos.writeUTF(args[1]);
+            dos.writeUTF(args[0]);
         } catch (IOException e) {
             e.printStackTrace();
         }

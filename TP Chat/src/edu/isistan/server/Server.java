@@ -37,26 +37,23 @@ public class Server {
         if (this.clients.containsKey(userName)) {
             return false;
         }
-        this.clients.values().forEach(
-                c -> c.addUser(userName)
-        );
-        this.clients.keySet().forEach(
-                i->client.addUser(i)
-        );
+
+        this.clients.values().forEach(c -> c.addUser(userName));
+        this.clients.keySet().forEach(i -> client.addUser(i));
         this.clients.put(userName, client);
         return true;
     }
 
     public synchronized void removeUser(String userName) {
         this.clients.remove(userName);
-        this.clients.values().forEach(
-                c -> c.removeUser(userName)
-        );
+        this.clients.values().forEach(c -> c.removeUser(userName));
     }
 
     public synchronized void sendGeneralMsg(String userName, String text) {
-        this.clients.entrySet().parallelStream().
-                filter( e -> !e.getKey().equals(userName)).
-                forEach( e -> e.getValue().sendGeneralMsg(userName, text));
+        this.clients.entrySet().parallelStream().filter(e -> !e.getKey().equals(userName)).forEach(e -> e.getValue().sendGeneralMsg(userName, text));
+    }
+
+    public synchronized void sendPrivateMsg(String userName, String userTo, String text) {
+        this.clients.entrySet().parallelStream().filter(e -> e.getKey().equals(userTo)).forEach(e -> e.getValue().sendPrivateMsg(userName, userTo, text));
     }
 }
